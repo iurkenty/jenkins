@@ -1,7 +1,6 @@
 module "jenkins" {
   source = "./jenkins/"
 
-  my_ip                   = var.my_ip
   name_prefix             = var.name_prefix
   main_network_block      = var.main_network_block
   public_cidr_blocks      = var.public_cidr_blocks
@@ -11,4 +10,6 @@ module "jenkins" {
   instance_type           = var.instance_type
   ami_owner               = var.ami_owner
   ami_name                = var.ami_name
+  ansible_ssh_key         = var.ansible_ssh_key 
+  ansible_user            = var.ansible_user
 }
