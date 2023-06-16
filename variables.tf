@@ -1,8 +1,4 @@
 
-variable "my_ip" {
-  type        = string
-  description = "My ip to be used for the security group"
-}
 variable "instance_type" {
     type        = string
     description = "EC2 instance type to be used for Jenkins server"  
@@ -42,4 +38,16 @@ variable "zone_name" {
 variable "aws_region" {
   type        = string
   description = "AWS region for infrastructure to be deployed in" 
+}
+variable "aws_profile" {
+  type        = string
+  description = "AWS profile for infrastructure to be used" 
+}
+variable "ansible_ssh_key" {
+    type        = string
+    description = "Path to the pem file to be used by ansible"
+}
+variable "ansible_user" {
+    type        = string
+    description = "User name to be used by ansible" #See AMI docs for one
 }

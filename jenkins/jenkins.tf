@@ -1,8 +1,4 @@
 // Variables
-variable "my_ip" {
-  type        = string
-  description = "My ip to be used for the security group"
-}
 variable "instance_type" {
     type        = string
     description = "EC2 instance type to be used for Jenkins server"  
@@ -15,13 +11,18 @@ variable "ami_name" {
     type        = string
     description = "Name to be used to filter out the AMI"
 }
-/*
-// My ip 
-# Does not work with terraform cloud
-data "external" "my_ip" {
-  program = ["bash", "-c", "curl -s 'https://api.ipify.org?format=json'"]
+variable "ansible_ssh_key" {
+    type        = string
+    description = "Path to the pem file to be used by ansible"
 }
-*/
+variable "ansible_user" {
+    type        = string
+    description = "User name to be used by ansible" #See AMI docs for one
+}
+# Does not work with terraform cloud in remote mode
+data "http" "my_ip" {
+  url ="https://api.ipify.org"
+}
 // AMI
 data "aws_ami" "ami" {
   most_recent = true
@@ -59,19 +60,10 @@ module "jenkins_sg" {
   name        = "${var.name_prefix}-sg"
   vpc_id      = module.vpc.vpc_id
 
-  ingress_cidr_blocks = ["0.0.0.0/0"]
+  ingress_cidr_blocks = ["${data.http.my_ip.response_body}/32"]
   ingress_rules       = ["ssh-tcp", "http-8080-tcp"]
   egress_rules        = ["all-all"]
 }
-resource "aws_security_group_rule" "personal_ip" {
-  cidr_blocks       = ["${var.my_ip}/32"]
-  from_port         = 0
-  protocol          = "tcp"
-  security_group_id = module.jenkins_sg.security_group_id
-  to_port           = 65535
-  type              = "ingress"
-}
-
 // EC2
 module "compute" {
   source = "terraform-aws-modules/ec2-instance/aws"
@@ -100,5 +92,33 @@ module "compute" {
       }
     }
   ]
+}
+/*
+# Can't use it due to the error --> The plugin.(*GRPCProvider).ApplyResourceChange request was cancelled.
+resource "ansible_playbook" "this" {
+  name     = module.compute.public_ip
+  playbook = "./ping.yaml"
+}
+// Ansible dynamic inventory
+resource "ansible_host" "this" {
+  name   = module.compute.public_ip
+  groups = ["jenkins"]
+  variables = {
+    ansible_user                 = "ubuntu"
+    ansible_ssh_private_key_file = var.ansible_ssh_key
+  }
+}
+*/
+// Ansible playbook
+resource "null_resource" "playbook" {
+  provisioner "local-exec" {
+    command = "ansible-playbook -i ${module.compute.public_ip}, --private-key ${var.ansible_ssh_key} -u ${var.ansible_user} ansible/ping.yaml"
+  }
+
+  triggers = {
+    always_run = timestamp()
+  }
+
+  depends_on = [module.compute]  
 }
 
