@@ -17,7 +17,11 @@ variable "ansible_ssh_key" {
 }
 variable "ansible_user" {
     type        = string
-    description = "User name to be used by ansible" #See AMI docs for one
+    description = "User name to be used by ansible"
+}
+variable "ansible_playbook" {
+    type        = string
+    description = "Choose between Jenkins and Ping playbooks" 
 }
 # Does not work with terraform cloud in remote mode
 data "http" "my_ip" {
@@ -93,7 +97,20 @@ module "compute" {
     }
   ]
 }
+// Ansible playbook
+resource "null_resource" "playbook" {
+  provisioner "local-exec" {
+    command = "ansible-playbook -i ${module.compute.public_ip}, --private-key ${var.ansible_ssh_key} -u ${var.ansible_user} ${var.ansible_playbook}"
+  }
+
+  triggers = {
+    always_run = timestamp()
+  }
+
+  depends_on = [module.compute]  
+}
 /*
+//Future use
 # Can't use it due to the error --> The plugin.(*GRPCProvider).ApplyResourceChange request was cancelled.
 resource "ansible_playbook" "this" {
   name     = module.compute.public_ip
@@ -109,16 +126,3 @@ resource "ansible_host" "this" {
   }
 }
 */
-// Ansible playbook
-resource "null_resource" "playbook" {
-  provisioner "local-exec" {
-    command = "ansible-playbook -i ${module.compute.public_ip}, --private-key ${var.ansible_ssh_key} -u ${var.ansible_user} ansible/ping.yaml"
-  }
-
-  triggers = {
-    always_run = timestamp()
-  }
-
-  depends_on = [module.compute]  
-}
-

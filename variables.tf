@@ -1,15 +1,17 @@
 
 variable "instance_type" {
-    type        = string
-    description = "EC2 instance type to be used for Jenkins server"  
+  type        = string
+  description = "EC2 instance type to be used for Jenkins server"  
 }
 variable "ami_owner" {
-    type        = string
-    description = "AMI owner id"
+  type        = list(string)
+  default     = ["099720109477", "137112412989"]
+  description = "Canonical and Amazon account IDs"
 }
 variable "ami_name" {
-    type        = string
-    description = "Name to be used to filter out the AMI"
+  type        = list(string)
+  default     = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*", "amzn2-ami-hvm-*-x86_64-gp2"]
+  description = "AMI filter name"
 }
 variable "name_prefix" {
   type        = string
@@ -44,10 +46,16 @@ variable "aws_profile" {
   description = "AWS profile for infrastructure to be used" 
 }
 variable "ansible_ssh_key" {
-    type        = string
-    description = "Path to the pem file to be used by ansible"
+  type        = string
+  description = "Path to the pem file to be used by ansible"
 }
 variable "ansible_user" {
-    type        = string
-    description = "User name to be used by ansible" #See AMI docs for one
+  type        = list(string)
+  default     = ["ubuntu", "ec2-user"]
+  description = "User name to be used by ansible"
+}
+variable "ansible_playbook" {
+  type        = list(string)
+  default     = ["ansible/ping.yaml", "ansible/jenkins.yaml"]
+  description = "Choose between Jenkins and Ping playbooks" 
 }

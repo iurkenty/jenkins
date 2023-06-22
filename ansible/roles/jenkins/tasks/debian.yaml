@@ -1,0 +1,42 @@
+---
+- name: Add Jenkins GPG key
+  apt_key:
+    url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+    state: present
+  tags: debian 
+
+- name: Add Jenkins repository
+  apt_repository:
+    repo: deb https://pkg.jenkins.io/debian-stable binary/
+    state: present
+  tags: debian
+
+- name: Install Java
+  apt:
+    name: openjdk-11-jre
+  tags: debian
+
+- name: Install Jenkins
+  apt:
+    name: jenkins
+    state: latest
+  tags: debian 
+
+- name: Start Jenkins service
+  systemd:
+    name: jenkins
+    state: started
+    enabled: yes
+  tags: debian
+
+- name: Get Jenkins initial password  
+  command:
+    cmd: cat /var/lib/jenkins/secrets/initialAdminPassword
+  register: initial_admin_password
+  tags: debian
+
+- name: Display Jenkins initial password
+  debug:
+   var: initial_admin_password.stdout  
+  tags: debian
+  

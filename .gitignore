@@ -36,5 +36,3 @@ terraform.rc
 **/*.pem
 # Lock file
 **/*.terraform.lock.*
-#Ansible
-**/ansible.cfg

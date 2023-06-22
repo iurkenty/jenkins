@@ -1,0 +1,20 @@
+---
+- name: Install Jenkins
+  hosts: all
+  gather_facts: no
+  become: yes
+  
+  #Wait for the SSH agent to get alive and gather facts
+  pre_tasks:
+  - name: Wait for connection
+    wait_for_connection:
+      delay: 10
+      timeout: 60
+ 
+  - name: Gather facts
+    setup:
+
+  roles:
+  - jenkins
+
+    

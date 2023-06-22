@@ -1,0 +1,44 @@
+---
+- name: Add Jenkins repository key
+  rpm_key:
+    key: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+  tags: amazon 
+
+- name: Add Jenkins repository
+  yum_repository:
+    name: jenkins
+    description: Jenkins-stable
+    baseurl: https://pkg.jenkins.io/redhat-stable/
+    gpgcheck: yes
+    gpgkey: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+    enabled: yes
+  tags: amazon 
+
+- name: Install Java OpenJDK
+  yum:
+    name: java-11-amazon-corretto
+  tags: amazon 
+
+- name: Install Jenkins
+  yum:
+    name: jenkins
+    state: latest
+  tags: amazon 
+
+- name: Start Jenkins service
+  systemd:
+    name: jenkins
+    state: started
+    enabled: yes
+  tags: amazon 
+
+- name: Get Jenkins initial password  
+  command:
+    cmd: cat /var/lib/jenkins/secrets/initialAdminPassword
+  register: initial_admin_password
+  tags: amazon 
+
+- name: Display Jenkins initial password
+  debug:
+   var: initial_admin_password.stdout  
+  tags: amazon 
