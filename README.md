@@ -1,5 +1,5 @@
 # Jenkins-Terraform-Ansible-AWS 
-This is project will do the following:
+This project will do the following:
 
 1. Provision a VPC across 3 azs with two private and one public subnets.
 2. Provision an EC2 of t3.medium size.
@@ -24,4 +24,4 @@ To use this project, follow these steps:
 4. Run **terraform apply** to create the infrastructure and configure it using Ansible.
 
 # Conclusion
-You should now have Jenkins running at jenkins.domain-name and be able to use the initial admin password to log in.
+You should now have Jenkins running at **jenkins.domain-name** and be able to use the initial admin password to log in.
